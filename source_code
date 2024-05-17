@@ -1,0 +1,203 @@
+#include <iostream>
+#include <string>
+#include <cstdlib>
+
+using namespace std;
+
+class Character{
+protected:
+    string name;
+    int health;
+    int damage;
+    int mana;
+
+public:
+
+    virtual void displayCharacterInfo(){};
+    virtual void actions(Character &c){};
+
+    void setName(string u_name) {
+        this->name = u_name;
+    }
+    void setHealth(int u_health) {
+        this->health = u_health;
+    }
+    void setDamage(int u_damage) {
+        this->damage = u_damage;
+    }
+    void setMana(int u_mana) {
+        this->mana = u_mana;
+    }
+    string getName() {
+        return name;
+    }
+    int getHealth() {
+        return health;
+    }
+    int getDamage() {
+        return damage;
+    }
+    int getMana() {
+        return mana;
+    }
+void modifyName(){
+     string n;
+     cout<<"Enter character's name: ";
+     cin>>n;
+     this->setName(n);
+    }
+void modifyHealth(){
+        int h;
+        cout<<"Enter character's health: ";
+        cin>>h;
+        this->setHealth(h);
+    }
+void modifyDamage(){
+        int d;
+        cout<<"Enter character's damage: ";
+        cin>>d;
+        this->setDamage(d);
+    }
+void modifyMana(){
+        int m;
+        cout<<"Enter character's mana: ";
+        cin>>m;
+        this->setMana(m);
+    }
+};
+
+class Barbarian: public Character{
+public:
+    Barbarian(){
+        cout<<"Create the Barbarian:"<<endl;
+        this->modifyName();
+        this->modifyDamage();
+        this->modifyHealth();
+        this->modifyMana();
+    }
+void axeAttack(Character &c){
+        c.setHealth(c.getHealth() - this->getDamage());
+        this->setMana(this->getMana()+1);
+    }
+void rageAttack(Character &c){
+        c.setHealth(c.getHealth()- (3*getDamage()));
+        this->setMana(this->getMana()-5);
+    }
+void actions(Character &c) override{
+        int attack = rand()%2;
+        if(attack==0) {
+            cout << this->getName() << ": Used the axe to attack" << endl;
+            this->axeAttack(c);
+        }else{
+            if(this->getMana()>=5){
+                cout<<this->getName()<<": Used the rage attack"<<endl;
+            }else{
+                cout << this->getName() << ": Used the axe to attack" << endl;
+                this->axeAttack(c);
+        }
+        }
+    }
+    void displayCharacterInfo() override{
+        cout<<endl<<"=============Barbarian============="<<endl;
+        cout<<"Name: "<<this->getName()<<endl;
+        cout<<"Health: "<<this->getHealth()<<endl;
+        cout<<"Axe Damage: "<<this->getDamage()<<endl;
+        cout<<"Mana: "<<this->getMana()<<endl;
+        cout<<endl<<"==================================="<<endl;
+    }
+};
+
+class Mage:public Character{
+public:
+    int fireballDamage;
+
+    Mage(){
+        cout<<"Create the Mage: "<<endl;
+        this->modifyName();
+        this->modifyHealth();
+        this->modifyMana();
+        //this->modifyDamage();
+        this->modifyFireballDamage();
+    }
+    void setFireballDamage(int fd){
+        this->fireballDamage=fd;
+    }
+    int getFireballDamage(){
+        return this->fireballDamage;
+    }
+    void modifyFireballDamage(){
+        int fd;
+        cout<<"Enter the fireball damage: ";
+        cin>>fd;
+        this->setFireballDamage(fd);
+    }
+
+    void heal(){
+        this->setHealth(this->getHealth() * 3/100 + this->getHealth());
+        this->setMana(this->getMana()+1);
+    }
+    void FireballAttack(Character &c){
+        c.setHealth(c.getHealth()-this->getFireballDamage());
+        this->setMana(this->getMana()-4);
+    }
+void actions(Character &c) override{
+        int attack=rand()%2;
+        if(attack==0){
+            cout<<this->getName()<<": Used the healing ability."<<endl;
+            this->heal();
+        }
+        else{
+            if(this->getMana()>=4){
+                cout<<this->getName()<<": Casted a fireball."<<endl;
+                this->FireballAttack(c);
+            }else{
+                cout<<this->getName()<<": Used the healing ability."<<endl;
+                this->heal();
+            }
+        }
+
+    }
+    void displayCharacterInfo() override{
+        cout<<endl<<"================Mage==============="<<endl;
+        cout<<"Name: "<<this->getName()<<endl;
+        cout<<"Health: "<<this->getHealth()<<endl;
+        cout<<"Fireball Damage: "<<this->getFireballDamage()<<endl;
+        cout<<"Mana: "<<this->getMana()<<endl;
+        cout<<endl<<"==================================="<<endl;
+    }
+
+};
+
+int main() {
+    Barbarian barbarian;
+    Mage mage;
+
+    int turn = rand() % 2;
+
+    bool Stop = false;
+    while(!Stop){
+
+        if(barbarian.getHealth() <= 0){
+            cout<<barbarian.getName()<<" is dead! "<<mage.getName()<<" won! Thank you for playing"<<endl;
+            Stop = true;
+        }
+
+        if(mage.getHealth() <= 0){
+            cout<<mage.getName()<<" is dead! "<<barbarian.getName()<<" won! Thank you for playing"<<endl;
+            Stop = true;
+        }
+
+        if(mage.getHealth() > 0 && barbarian.getHealth() > 0) {
+            if(turn == 0) {
+                barbarian.actions(mage);
+                mage.displayCharacterInfo();
+            }else{
+                mage.actions(barbarian);
+                barbarian.displayCharacterInfo();
+            }
+            turn = !turn;
+        }
+    }
+
+    return 0;
+}
